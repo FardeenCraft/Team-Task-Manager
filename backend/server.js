@@ -38,12 +38,11 @@ app.use((err, req, res, next) => {
 });
 
 // Start server AFTER DB connects
-connectDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log("Server running on port", PORT);
-    });
-  })
-  .catch((err) => {
-    console.error("DB connection failed:", err);
-  });
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on port", PORT);
+});
+
+// Connect DB (separately)
+connectDB().catch((err) => {
+  console.error("DB connection failed:", err);
+});
