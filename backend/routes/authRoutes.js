@@ -34,7 +34,6 @@ router.post("/signup", async (req, res) => {
 });
 
 
-// 🔹 LOGIN
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -59,7 +58,6 @@ router.post("/login", async (req, res) => {
 });
 
 
-// 🔹 GET ALL USERS (for assigning tasks/projects)
 router.get("/users", async (req, res) => {
   try {
     const users = await User.find().select("_id name role");

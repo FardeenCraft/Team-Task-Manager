@@ -9,14 +9,14 @@ export default function MemberDashboard() {
 
   const token = localStorage.getItem("token");
 
-  // 🔐 safer decode
+  //  safer decode
   const user = token
     ? JSON.parse(atob(token.split(".")[1]))
     : null;
 
   const userId = user?.id;
 
-  // 🔹 FETCH DATA
+  // FETCH DATA
   const fetchData = async () => {
     try {
       const resTasks = await axios.get(
@@ -41,7 +41,7 @@ export default function MemberDashboard() {
     fetchData();
   }, []);
 
-  // 🔥 OVERDUE COUNT
+  // OVERDUE COUNT
   const overdueCount = tasks.filter(
     t =>
       new Date(t.dueDate) < new Date() &&

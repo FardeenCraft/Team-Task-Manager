@@ -14,7 +14,7 @@ const taskSchema = new mongoose.Schema({
   projectId: String,
   dueDate: Date,
 
-  // ✅ ADD THIS
+  
   createdBy: String
 });
 

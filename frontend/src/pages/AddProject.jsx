@@ -13,7 +13,7 @@ export default function AddProject() {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
 
-  // 🔹 FETCH USERS
+  // FETCH USERS
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -27,7 +27,7 @@ export default function AddProject() {
     fetchUsers();
   }, []);
 
-  // 🔹 CREATE PROJECT
+  // CREATE PROJECT
   const createProject = async () => {
     try {
       const token = localStorage.getItem("token");

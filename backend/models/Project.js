@@ -6,7 +6,7 @@ const projectSchema = new mongoose.Schema({
   createdBy: String,
   teamMembers: [String],
 
-  // ✅ ADD THIS FIELD
+  
   completed: {
     type: Boolean,
     default: false

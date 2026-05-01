@@ -8,14 +8,12 @@ const User = require("../models/User");
 // CREATE TASK
 router.post("/", auth, async (req, res) => {
   try {
-    // 🔐 ROLE CHECK (ADD THIS)
     if (req.user.role !== "Admin") {
       return res.status(403).json({ msg: "Access denied" });
     }
 
     const { title, description, assignedTo, projectId, dueDate } = req.body;
 
-    // 🛑 BASIC VALIDATION (IMPORTANT)
     if (!title || !assignedTo) {
       return res.status(400).json({ msg: "Missing required fields" });
     }
@@ -37,16 +35,13 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// GET TASKS (for logged-in user)
 router.get("/", auth, async (req, res) => {
   try {
     let tasks;
 
-    // 🔐 ROLE-BASED FILTER
     if (req.user.role === "Admin") {
       tasks = await Task.find();
     } else {
-      // Member → only their tasks
       tasks = await Task.find({
         assignedTo: req.user.id
       });
@@ -77,7 +72,6 @@ router.get("/", auth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// UPDATE TASK STATUS
 router.patch("/:id", auth, async (req, res) => {
   try {
     const { status } = req.body;
@@ -94,7 +88,6 @@ router.patch("/:id", auth, async (req, res) => {
   }
 });
 
-// 🔹 DELETE TASK
 router.delete("/:id", auth, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -103,7 +96,6 @@ router.delete("/:id", auth, async (req, res) => {
       return res.status(404).json({ msg: "Task not found" });
     }
 
-    // 🔐 Only Admin can delete
     if (req.user.role !== "Admin") {
       return res.status(403).json({ msg: "Not allowed" });
     }

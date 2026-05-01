@@ -18,7 +18,7 @@ export default function Login() {
         { email, password }
       );
 
-      // 🔐 ROLE CHECK
+      // ROLE CHECK
       if (res.data.user.role !== selectedRole) {
         alert(`You are not registered as ${selectedRole}`);
         return;

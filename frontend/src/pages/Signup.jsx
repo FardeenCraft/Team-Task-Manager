@@ -20,7 +20,7 @@ export default function Signup() {
       }
 
       await axios.post(
-        `${API}/api/auth/signup`,   // ✅ FIXED
+        `${API}/api/auth/signup`,   
         {
           name,
           email,

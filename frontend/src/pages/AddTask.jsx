@@ -22,7 +22,7 @@ export default function AddTask() {
       try {
         const token = localStorage.getItem("token");
 
-        // ✅ Fetch projects
+        //  Fetch projects
         const resProjects = await axios.get(
           `${API}/api/projects`,
           { headers: { Authorization: token } }

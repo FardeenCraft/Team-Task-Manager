@@ -10,7 +10,7 @@ export default function AdminDashboard() {
 
   const navigate = useNavigate();
 
-  // 🔹 Fetch Data
+  //  Fetch Data
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
