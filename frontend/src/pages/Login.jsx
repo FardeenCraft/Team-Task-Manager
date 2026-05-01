@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,11 +14,11 @@ export default function Login() {
   const login = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        `${API}/api/auth/login`,   // ✅ FIXED
         { email, password }
       );
 
-      // 🔐 ROLE CHECK (important)
+      // 🔐 ROLE CHECK
       if (res.data.user.role !== selectedRole) {
         alert(`You are not registered as ${selectedRole}`);
         return;
@@ -32,6 +34,7 @@ export default function Login() {
       }
 
     } catch (err) {
+      console.log(err);
       alert("Login failed");
     }
   };
@@ -44,14 +47,12 @@ export default function Login() {
           Login
         </h2>
 
-        {/* 🔹 ROLE SELECT */}
+        {/* ROLE SELECT */}
         <div className="flex mb-4 bg-gray-700 rounded-lg overflow-hidden">
           <button
             onClick={() => setSelectedRole("Admin")}
             className={`w-1/2 py-2 ${
-              selectedRole === "Admin"
-                ? "bg-blue-600"
-                : "bg-gray-700"
+              selectedRole === "Admin" ? "bg-blue-600" : "bg-gray-700"
             }`}
           >
             Admin
@@ -60,9 +61,7 @@ export default function Login() {
           <button
             onClick={() => setSelectedRole("Member")}
             className={`w-1/2 py-2 ${
-              selectedRole === "Member"
-                ? "bg-blue-600"
-                : "bg-gray-700"
+              selectedRole === "Member" ? "bg-blue-600" : "bg-gray-700"
             }`}
           >
             Member

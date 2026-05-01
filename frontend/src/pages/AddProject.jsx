@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function AddProject() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
-  const [users, setUsers] = useState([]);               // 🔥 all users
-  const [selectedMembers, setSelectedMembers] = useState([]); // 🔥 selected members
+  const [users, setUsers] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
@@ -16,9 +17,7 @@ export default function AddProject() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/users"
-        );
+        const res = await axios.get(`${API}/api/auth/users`);
         setUsers(res.data);
       } catch (err) {
         console.log(err);
@@ -39,11 +38,11 @@ export default function AddProject() {
       }
 
       await axios.post(
-        "http://localhost:5000/api/projects",
+        `${API}/api/projects`,
         {
           title,
           description,
-          teamMembers: selectedMembers   // ✅ IMPORTANT FIX
+          teamMembers: selectedMembers
         },
         {
           headers: { Authorization: token }
@@ -51,7 +50,6 @@ export default function AddProject() {
       );
 
       alert("Project created");
-
       navigate("/dashboard-admin", { state: { refresh: true } });
 
     } catch (err) {
@@ -62,7 +60,6 @@ export default function AddProject() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      
       <div className="bg-gray-800 p-8 rounded-2xl shadow-lg w-96">
 
         <h2 className="text-2xl font-bold text-white mb-6 text-center">
@@ -83,7 +80,7 @@ export default function AddProject() {
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        {/* 🔥 SELECT MEMBERS */}
+        {/* MEMBERS */}
         <label className="text-sm text-gray-400 mb-1 block">
           Assign Members
         </label>

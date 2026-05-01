@@ -1,25 +1,31 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function MemberDashboard() {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
 
-  const user = JSON.parse(atob(localStorage.getItem("token").split(".")[1]));
-  const userId = user.id;
+  const token = localStorage.getItem("token");
 
-  // 🔥 FETCH
+  // 🔐 safer decode
+  const user = token
+    ? JSON.parse(atob(token.split(".")[1]))
+    : null;
+
+  const userId = user?.id;
+
+  // 🔹 FETCH DATA
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       const resTasks = await axios.get(
-        "http://localhost:5000/api/tasks",
+        `${API}/api/tasks`,
         { headers: { Authorization: token } }
       );
 
       const resProjects = await axios.get(
-        "http://localhost:5000/api/projects",
+        `${API}/api/projects`,
         { headers: { Authorization: token } }
       );
 
@@ -40,7 +46,7 @@ export default function MemberDashboard() {
     t =>
       new Date(t.dueDate) < new Date() &&
       t.status !== "Done" &&
-      t.assignedTo?.toString() === userId.toString()
+      t.assignedTo?.toString() === userId?.toString()
   ).length;
 
   return (
@@ -49,7 +55,7 @@ export default function MemberDashboard() {
       {/* HEADER */}
       <h2 className="text-2xl font-bold mb-2">My Projects</h2>
 
-      {/* 🔥 OVERDUE DISPLAY */}
+      {/* OVERDUE */}
       <p className="text-red-400 mb-6">
         Overdue Tasks: {overdueCount}
       </p>
@@ -64,7 +70,7 @@ export default function MemberDashboard() {
             const projectTasks = tasks.filter(
               t =>
                 t.projectId?.toString() === project._id.toString() &&
-                t.assignedTo?.toString() === userId.toString()
+                t.assignedTo?.toString() === userId?.toString()
             );
 
             return (
@@ -91,7 +97,6 @@ export default function MemberDashboard() {
                   <ul className="space-y-3">
                     {projectTasks.map(task => {
 
-                      // 🔥 OVERDUE LOGIC
                       const isOverdue =
                         new Date(task.dueDate) < new Date() &&
                         task.status !== "Done";
@@ -106,30 +111,25 @@ export default function MemberDashboard() {
                           }`}
                         >
 
-                          {/* TITLE */}
                           <div className="font-medium">
                             {task.title}
                           </div>
 
-                          {/* ASSIGNED */}
                           <div className="text-xs text-blue-400">
                             Assigned by: {task.assignedUserName || "Admin"}
                           </div>
 
-                          {/* DUE */}
                           <div className="text-xs text-gray-400">
                             Due: {new Date(task.dueDate).toDateString()}
                           </div>
 
-                          {/* 🔥 OVERDUE LABEL */}
                           {isOverdue && (
                             <div className="text-xs text-red-400 font-semibold">
                               ⚠ Overdue
                             </div>
                           )}
 
-                          {/* STATUS + BUTTON */}
-                          <div className="flex justify-between items-center mt-1">
+                          <div className="flex justify-between mt-1">
 
                             <span
                               className={
@@ -145,14 +145,14 @@ export default function MemberDashboard() {
 
                             {task.status !== "Done" && (
                               <button
-                                className="text-xs bg-green-600 hover:bg-green-700 px-2 py-1 rounded"
+                                className="text-xs bg-green-600 px-2 py-1 rounded"
                                 onClick={async () => {
                                   await axios.patch(
-                                    `http://localhost:5000/api/tasks/${task._id}`,
+                                    `${API}/api/tasks/${task._id}`,
                                     { status: "Done" },
                                     {
                                       headers: {
-                                        Authorization: localStorage.getItem("token")
+                                        Authorization: token
                                       }
                                     }
                                   );

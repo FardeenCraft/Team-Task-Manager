@@ -2,45 +2,41 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL;
+
 export default function AdminDashboard() {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
 
   const navigate = useNavigate();
 
-  // ✅ Moved outside useEffect
+  // 🔹 Fetch Data
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
 
       const resTasks = await axios.get(
-        "http://localhost:5000/api/tasks",
+        `${API}/api/tasks`,
         { headers: { Authorization: token } }
       );
       setTasks(resTasks.data);
 
       const resProjects = await axios.get(
-        "http://localhost:5000/api/projects",
+        `${API}/api/projects`,
         { headers: { Authorization: token } }
       );
       setProjects(resProjects.data);
+
     } catch (err) {
       console.log(err);
     }
   };
 
-  // ✅ Initial load
   useEffect(() => {
     fetchData();
   }, []);
 
   // Stats
-  const total = tasks.length;
-  const completed = tasks.filter(t => t.status === "Done").length;
-  const overdue = tasks.filter(
-    t => new Date(t.dueDate) < new Date() && t.status !== "Done"
-  ).length;
-
   const completedProjects = projects.filter(p => p.completed).length;
 
   return (
@@ -60,14 +56,12 @@ export default function AdminDashboard() {
 
       {/* STATS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-
         <div className="bg-gray-800 p-4 rounded-xl">
           <p className="text-gray-400 text-sm">Completed Projects</p>
           <h3 className="text-blue-400 text-xl font-bold">
             {completedProjects}
           </h3>
         </div>
-
       </div>
 
       {/* PROJECTS */}
@@ -79,7 +73,6 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {projects.map(project => {
-
             const projectTasks = tasks.filter(
               t => t.projectId?.toString() === project._id.toString()
             );
@@ -92,31 +85,27 @@ export default function AdminDashboard() {
                 }`}
               >
 
-                {/* Project Title */}
+                {/* Title */}
                 <h3 className="text-lg font-semibold">
                   {project.title}
                 </h3>
 
-                {/* 🔥 DELETE PROJECT */}
+                {/* DELETE PROJECT */}
                 <button
-                  className="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded mb-2"
+                  className="text-xs bg-red-600 px-2 py-1 rounded mb-2"
                   onClick={async () => {
                     if (!window.confirm("Delete this project?")) return;
 
-                    try {
-                      await axios.delete(
-                        `http://localhost:5000/api/projects/${project._id}`,
-                        {
-                          headers: {
-                            Authorization: localStorage.getItem("token")
-                          }
+                    await axios.delete(
+                      `${API}/api/projects/${project._id}`,
+                      {
+                        headers: {
+                          Authorization: localStorage.getItem("token")
                         }
-                      );
+                      }
+                    );
 
-                      fetchData(); // ✅ refresh UI
-                    } catch (err) {
-                      console.log(err);
-                    }
+                    fetchData();
                   }}
                 >
                   Delete Project
@@ -127,22 +116,22 @@ export default function AdminDashboard() {
                   {project.description}
                 </p>
 
-                {/* ADD TASK BUTTON */}
+                {/* ADD TASK */}
                 <button
                   onClick={() => navigate(`/add-task?projectId=${project._id}`)}
-                  className="bg-blue-600 hover:bg-blue-700 px-2 py-1 text-xs rounded mb-2"
+                  className="bg-blue-600 px-2 py-1 text-xs rounded mb-2"
                 >
                   + Add Task
                 </button>
 
-                {/* PROJECT COMPLETION */}
+                {/* COMPLETE PROJECT */}
                 <div className="flex items-center gap-2 mb-3">
                   <input
                     type="checkbox"
                     checked={project.completed || false}
                     onChange={async () => {
                       await axios.patch(
-                        `http://localhost:5000/api/projects/${project._id}`,
+                        `${API}/api/projects/${project._id}`,
                         { completed: !project.completed },
                         {
                           headers: {
@@ -151,7 +140,7 @@ export default function AdminDashboard() {
                         }
                       );
 
-                      fetchData(); // ✅ refresh UI
+                      fetchData();
                     }}
                   />
                   <span className="text-xs text-gray-400">
@@ -160,36 +149,25 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* TASKS */}
-                <h4 className="text-yellow-400 text-sm font-semibold mb-2">
-                  Tasks:
-                </h4>
+                <h4 className="text-yellow-400 text-sm mb-2">Tasks:</h4>
 
                 {projectTasks.length === 0 ? (
-                  <p className="text-xs text-gray-500">
-                    No tasks yet
-                  </p>
+                  <p className="text-xs text-gray-500">No tasks yet</p>
                 ) : (
-                  <ul className="list-disc pl-5 space-y-3">
+                  <ul className="space-y-3">
                     {projectTasks.map(task => (
                       <li
                         key={task._id}
-                        className="text-sm text-gray-200 bg-gray-700 p-3 rounded-lg flex flex-col gap-1"
+                        className="bg-gray-700 p-3 rounded-lg"
                       >
+                        <div className="font-medium">{task.title}</div>
 
-                        {/* Task Title */}
-                        <div className="font-medium">
-                          {task.title}
-                        </div>
-
-                        {/* Assigned User */}
                         <div className="text-xs text-blue-400">
-                          Assigned to: {task.assignedUserName || task.assignedTo}
+                          Assigned: {task.assignedUserName || task.assignedTo}
                         </div>
 
-                        {/* Status + Buttons */}
-                        <div className="flex justify-between items-center mt-1">
+                        <div className="flex justify-between mt-2">
 
-                          {/* Status */}
                           <span
                             className={
                               task.status === "Done"
@@ -202,13 +180,13 @@ export default function AdminDashboard() {
 
                           <div className="flex gap-2">
 
-                            {/* MARK DONE */}
+                            {/* DONE */}
                             {task.status !== "Done" && (
                               <button
-                                className="text-xs bg-green-600 px-2 py-1 rounded"
+                                className="bg-green-600 px-2 py-1 text-xs rounded"
                                 onClick={async () => {
                                   await axios.patch(
-                                    `http://localhost:5000/api/tasks/${task._id}`,
+                                    `${API}/api/tasks/${task._id}`,
                                     { status: "Done" },
                                     {
                                       headers: {
@@ -217,21 +195,21 @@ export default function AdminDashboard() {
                                     }
                                   );
 
-                                  fetchData(); // ✅ refresh UI
+                                  fetchData();
                                 }}
                               >
                                 Done
                               </button>
                             )}
 
-                            {/* DELETE TASK */}
+                            {/* DELETE */}
                             <button
-                              className="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+                              className="bg-red-600 px-2 py-1 text-xs rounded"
                               onClick={async () => {
                                 if (!window.confirm("Delete this task?")) return;
 
                                 await axios.delete(
-                                  `http://localhost:5000/api/tasks/${task._id}`,
+                                  `${API}/api/tasks/${task._id}`,
                                   {
                                     headers: {
                                       Authorization: localStorage.getItem("token")
@@ -239,7 +217,7 @@ export default function AdminDashboard() {
                                   }
                                 );
 
-                                fetchData(); // ✅ refresh UI
+                                fetchData();
                               }}
                             >
                               Delete
@@ -247,7 +225,6 @@ export default function AdminDashboard() {
 
                           </div>
                         </div>
-
                       </li>
                     ))}
                   </ul>
