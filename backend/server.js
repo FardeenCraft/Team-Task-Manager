@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL,
-  credentials: true
+  credentials: true 
 }));
 app.use(express.json());
 
@@ -38,11 +38,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start server AFTER DB connects
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Server running on port", PORT);
-});
-
-// Connect DB (separately)
-connectDB().catch((err) => {
-  console.error("DB connection failed:", err);
-});
+connectDB()
+  .then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("Server running on port", PORT);
+    });
+  })
+  .catch((err) => {
+    console.error("DB connection failed:", err);
+  });
