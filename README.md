@@ -76,8 +76,7 @@ cd frontend
 npm install
 
 Create .env file:
-VITE_API_URL=https://team-task-manager-production-c176.up.railway.app
-
+VITE_API_URL=_____________________-
 Run frontend:
 npm run dev
 
