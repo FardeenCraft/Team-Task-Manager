@@ -15,6 +15,24 @@ export default function MemberDashboard() {
     : null;
 
   const userId = user?.id;
+  const navigate = useNavigate();
+
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+
+  navigate("/"); // go to login page
+};
+<div className="flex justify-between items-center mb-6">
+  <h2 className="text-3xl font-bold">Dashboard</h2>
+
+  <button
+    onClick={handleLogout}
+    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white"
+  >
+    Logout
+  </button>
+</div>
 
   // FETCH DATA
   const fetchData = async () => {

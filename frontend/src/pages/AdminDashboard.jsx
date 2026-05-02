@@ -9,12 +9,27 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState([]);
 
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  //  Fetch Data
+  // 🔥 LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/");
+  };
+
+  // 🔥 PROTECT ROUTE
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+    } else {
+      fetchData();
+    }
+  }, []);
+
+  // 🔥 FETCH DATA
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       const resTasks = await axios.get(
         `${API}/api/tasks`,
         { headers: { Authorization: token } }
@@ -32,26 +47,31 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Stats
+  // STATS
   const completedProjects = projects.filter(p => p.completed).length;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
 
-      {/* HEADER */}
+      {/* 🔥 HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Admin Dashboard</h2>
 
-        <button
-          onClick={() => navigate("/add-project")}
-          className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg"
-        >
-          + Add Project
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate("/add-project")}
+            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg"
+          >
+            + Add Project
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* STATS */}
@@ -85,7 +105,7 @@ export default function AdminDashboard() {
                 }`}
               >
 
-                {/* Title */}
+                {/* TITLE */}
                 <h3 className="text-lg font-semibold">
                   {project.title}
                 </h3>
@@ -100,7 +120,7 @@ export default function AdminDashboard() {
                       `${API}/api/projects/${project._id}`,
                       {
                         headers: {
-                          Authorization: localStorage.getItem("token")
+                          Authorization: token
                         }
                       }
                     );
@@ -111,7 +131,7 @@ export default function AdminDashboard() {
                   Delete Project
                 </button>
 
-                {/* Description */}
+                {/* DESCRIPTION */}
                 <p className="text-gray-400 text-sm mb-2">
                   {project.description}
                 </p>
@@ -135,11 +155,10 @@ export default function AdminDashboard() {
                         { completed: !project.completed },
                         {
                           headers: {
-                            Authorization: localStorage.getItem("token")
+                            Authorization: token
                           }
                         }
                       );
-
                       fetchData();
                     }}
                   />
@@ -190,11 +209,10 @@ export default function AdminDashboard() {
                                     { status: "Done" },
                                     {
                                       headers: {
-                                        Authorization: localStorage.getItem("token")
+                                        Authorization: token
                                       }
                                     }
                                   );
-
                                   fetchData();
                                 }}
                               >
@@ -202,7 +220,7 @@ export default function AdminDashboard() {
                               </button>
                             )}
 
-                            {/* DELETE */}
+                            {/* DELETE TASK */}
                             <button
                               className="bg-red-600 px-2 py-1 text-xs rounded"
                               onClick={async () => {
@@ -212,7 +230,7 @@ export default function AdminDashboard() {
                                   `${API}/api/tasks/${task._id}`,
                                   {
                                     headers: {
-                                      Authorization: localStorage.getItem("token")
+                                      Authorization: token
                                     }
                                   }
                                 );
